@@ -42,7 +42,7 @@ def custom_encode_mask_results(mask_results):
                         dtype='uint8'))[0])  # encoded with RLE
     return [encoded_mask_results]
 
-def custom_multi_gpu_test(model, data_loader, tmpdir=None, gpu_collect=False):
+def custom_multi_gpu_test(model, data_loader, tmpdir=None, gpu_collect=True):
     """Test model with multiple gpus.
     This method tests model with multiple gpus and collects the results
     under two different modes: gpu and cpu modes. By setting 'gpu_collect=True'
@@ -161,4 +161,16 @@ def collect_results_cpu(result_part, size, tmpdir=None):
 
 
 def collect_results_gpu(result_part, size):
-    collect_results_cpu(result_part, size)
+    rank, world_size = get_dist_info()
+    if rank == 0:
+        results = [None for _ in range(world_size)]
+    else:
+        results = None
+    dist.gather_object(result_part, object_gather_list=results, dst=0)
+    if rank == 0:
+        ordered_results = []
+        for res in results:
+            ordered_results.extend(res)
+        return ordered_results[:size]
+    else:
+        return None
