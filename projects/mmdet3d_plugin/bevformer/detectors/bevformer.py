@@ -173,6 +173,7 @@ class BEVFormer(MVXTwoStageDetector):
                 img_feats = [each_scale[:, i] for each_scale in img_feats_list]
                 prev_bev = self.pts_bbox_head(
                     img_feats, img_metas, prev_bev, only_bev=True)
+                import pdb; pdb.set_trace()
             self.train()
             return prev_bev
 
@@ -221,7 +222,7 @@ class BEVFormer(MVXTwoStageDetector):
         img = img[:, -1, ...]
 
         prev_img_metas = copy.deepcopy(img_metas)
-        print('prev_img_metas', prev_img_metas)
+        import pdb; pdb.set_trace()
         prev_bev = self.obtain_history_bev(prev_img, prev_img_metas)
         print('prev_bev', prev_bev.shape)
 
